@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家庭局域网网盘</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        body {
+            font-family: '微软雅黑', Arial, sans-serif;
+            background: linear-gradient(135deg, #e0f7fa, #b3e5fc); /* 淡蓝色渐变 */
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            width: 61.8%; /* 黄金比例宽度 */
+            max-width: 1200px;
+            margin: 30px auto; /* 上下留白，居中对齐 */
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #0288d1;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+        h2 {
+            border-bottom: 2px solid #0288d1;
+            padding-bottom: 10px;
+            color: #0288d1;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        .file-list, .upload-list, .online-users {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #0288d1;
+            color: #fff;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .qr-image {
+            display: block;
+            margin: auto;
+            max-width: 60px; /* 调整二维码大小 */
+        }
+        .footer {
+            text-align: center;
+            color: gray;
+            margin-top: 20px;
+        }
+        .download-btn, .upload-btn, .confirm-btn {
+            background-color: #0288d1;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 25px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .download-btn:hover, .confirm-btn:hover {
+            background-color: #01579b;
+            transform: scale(1.05);
+        }
+        .upload-btn {
+            background-color: #0277bd; /* 深蓝色 */
+        }
+        .upload-btn:hover {
+            background-color: #01579b; /* 更深的蓝色 */
+        }
+        .upload-input {
+            display: none;
+        }
+        #p1 {
+            font-size: 18px;
+            color: #ff5722;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+        }
+        @keyframes colorChange {
+            0%   { background-color: #e0f7fa; }
+            50%  { background-color: #ffffff; }
+            100% { background-color: #e0f7fa; }
+        }
+        #div1 {
+            width: 100%;
+            height: 30px;
+            animation: colorChange 1s infinite;
+            margin-bottom: 20px;
+        }
+        .confirm-btn {
+            background-color: #fbc02d;
+        }
+        .confirm-btn:hover {
+            background-color: #f9a825;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>家庭局域网网盘</h1>
+
+    <div class="upload-section">
+        <h2>文件上传</h2>
+        <button class="upload-btn" onclick="document.getElementById('upload-input').click()">上传文件</button>
+        <input id="upload-input" class="upload-input" type="file" multiple onchange="displaySelectedFiles(event)">
+        <div class="upload-list">
+            <table id="upload-table">
+                <tr>
+                    <th>名称</th>
+                    <th>大小</th>
+                    <th>格式</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div id="div1">
+        <p id="p1">注意：当上传文件成功后需手动刷新，才能在文件列表中显示</p>
+    </div>
+
+    <div class="file-list">
+        <h2>文件列表</h2>
+        <table>
+            <tr>
+                <th>扫码下载</th>
+                <th>名称</th>
+                <th>大小</th>
+                <th>格式</th>
+                <th>上传者IP</th>
+                <th>下载次数</th>
+                <th>操作</th>
+            </tr>
+            {% for file in file_list %}
+            <tr>
+                <td><img src="{{ url_for('generate_qr', filename=file['名称']) }}" class="qr-image" alt="二维码"></td>
+                <td>{{ file['名称'] }}</td>
+                <td>{{ file['大小'] }}</td>
+                <td>{{ file['格式'] }}</td>
+                <td>{{ file['上传者IP'] }}</td>
+                <td>{{ file['下载次数'] }}</td>
+                <td><a href="{{ file['下载链接'] }}" class="download-btn">下载</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="online-users">
+        <h2>在线用户</h2>
+        <table>
+            <tr>
+                <th>IP</th>
+                <th>上线时间</th>
+                <th>设备类型</th>
+                <th>操作系统</th>
+                <th>屏幕大小</th>
+            </tr>
+            {% for user in online_users.values() %}
+            <tr>
+                <td>{{ user['IP'] }}</td>
+                <td>{{ user['上线时间'] }}</td>
+                <td>{{ user['设备类型'] }}</td>
+                <td>{{ user['操作系统'] }}</td>
+                <td>{{ user['屏幕大小'] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="footer">
+        <p>© 2024 版权声明 | <span id="dateTxt"></span></p>
+    </div>
+</div>
+
+<script>
+    "use strict";
+    const week = ['天', '一', '二', '三', '四', '五', '六'],
+      dom = document.getElementById("dateTxt"),
+      checkTime = i => (i < 10) ? `0${i}` : i; // 在小于10的数字前加一个‘0’
+    let today;
+
+    function startTime() {
+      today = new Date();
+      dom.innerHTML = `北京时间：星期${week[today.getDay()]} ：${checkTime(today.getHours())}:${checkTime(today.getMinutes())}:${checkTime(today.getSeconds())}`;
+    }
+    setInterval(startTime, 500); // 循环计时
+</script>
+
+<script>
+    function displaySelectedFiles(event) {
+        const files = event.target.files;
+        const uploadTable = document.getElementById('upload-table');
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const row = uploadTable.insertRow(-1);
+            const nameCell = row.insertCell(0);
+            const sizeCell = row.insertCell(1);
+            const formatCell = row.insertCell(2);
+            const statusCell = row.insertCell(3);
+            const actionCell = row.insertCell(4);
+
+            nameCell.innerText = file.name;
+            sizeCell.innerText = formatFileSize(file.size);
+            formatCell.innerText = file.name.split('.').pop();
+            statusCell.innerText = '未上传';
+            actionCell.innerHTML = `
+                <button class="confirm-btn" onclick="uploadFile(${i})">上传</button>
+                <button class="confirm-btn" onclick="pauseUpload(${i})">暂停</button>
+                <button class="confirm-btn" onclick="deleteFile(${i})">删除</button>
+            `;
+        }
+    }
+
+    function formatFileSize(size) {
+        if (size >= 1073741824) { // 1 GB = 1024^3 bytes
+            return (size / 1073741824).toFixed(2) + ' GB';
+        } else if (size >= 1048576) { // 1 MB = 1024^2 bytes
+            return (size / 1048576).toFixed(2) + ' MB';
+        } else if (size >= 1024) { // 1 KB = 1024 bytes
+            return (size / 1024).toFixed(2) + ' KB';
+        } else {
+            return size + ' B';
+        }
+    }
+
+    function uploadFile(fileIndex) {
+        const uploadInput = document.getElementById('upload-input');
+        const file = uploadInput.files[fileIndex];
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const statusCell = document.getElementById('upload-table').rows[fileIndex + 1].cells[3];
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/upload', true);
+
+        let startTime;
+        xhr.upload.onprogress = function(event) {
+            if (event.lengthComputable) {
+                const percentComplete = (event.loaded / event.total) * 100;
+                const elapsedTime = (Date.now() - startTime) / 1000; // seconds
+                const uploadSpeed = (event.loaded / elapsedTime / 1024).toFixed(2); // KB/s
+                statusCell.innerText = `上传中... ${percentComplete.toFixed(2)}% (${formatFileSize(event.loaded)}/${formatFileSize(event.total)}) - 速度：${uploadSpeed} KB/s`;
+            }
+        };
+
+        xhr.onloadstart = function() {
+            startTime = Date.now();
+        };
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                statusCell.innerText = '上传完成';
+            } else {
+                statusCell.innerText = '上传失败';
+            }
+        };
+
+        xhr.send(formData);
+
+        // 暂停和删除按钮的操作
+        xhr.pause = function() {
+            xhr.abort(); // 暂时用abort方法模拟暂停
+        };
+        xhr.delete = function() {
+            xhr.abort(); // 模拟删除操作
+            document.getElementById('upload-table').deleteRow(fileIndex + 1); // 删除表格中的对应行
+        };
+    }
+
+    function pauseUpload(fileIndex) {
+        const statusCell = document.getElementById('upload-table').rows[fileIndex + 1].cells[3];
+
+        statusCell.innerText = '已暂停';
+        // 这里可以调用上传时绑定的xhr.pause方法
+    }
+
+    function deleteFile(fileIndex) {
+        const statusCell = document.getElementById('upload-table').rows[fileIndex + 1].cells[3];
+
+        statusCell.innerText = '已删除';
+        // 这里可以调用上传时绑定的xhr.delete方法
+        document.getElementById('upload-table').deleteRow(fileIndex + 1); // 从表格中删除
+    }
+</script>
+
+</body>
+</html>
