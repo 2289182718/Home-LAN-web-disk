@@ -1,6 +1,12 @@
 使用教程：
 要运行上述代码，你需要确保以下几点：
 
+安装python，
+Windows:
+访问 Python 官网。
+下载适合你系统的最新版本的 Python 安装程序。
+运行安装程序，确保选中“Add Python to PATH”选项，然后点击“Install Now”。
+
 安装必要的库： 确保你已经安装了 Flask 和其他依赖库。可以使用以下命令安装这些库：
 pip install flask qrcode[pil] pytz
 
