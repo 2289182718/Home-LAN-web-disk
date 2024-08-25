@@ -18,3 +18,5 @@ pip install flask qrcode[pil] pytz
 
 生成二维码： 你提到需要生成二维码。请确保你的计算机上有生成二维码所需的依赖库，如 Pillow。二维码图片会被保存到 qr_codes 目录中。可以使用以下命令安装这个库：
 pip install pillow
+
+最后运行“app.py”时，记住第6行的地址（192.168.x.x:5000），那是局域网其他设备访问网盘的地址，电脑作为服务器可用这个地址还可以用“http://localhost:5000”
